@@ -18,7 +18,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Size"
-            tools:ignore="HardcodedText"/>
+            android:textColor="#00796B"
+            tools:ignore="HardcodedText" />
 
         <Button
             android:id="@+id/btn_color"
@@ -27,7 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Color"
-            tools:ignore="HardcodedText"/>
+            android:textColor="#00796B"
+            tools:ignore="HardcodedText,VisualLintButtonSize" />
 
         <Button
             android:id="@+id/btn_opacity"
@@ -36,6 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Opacity"
+            android:textColor="#00796B"
             tools:ignore="HardcodedText" />
 
         <Button
@@ -45,7 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Clear"
-            tools:ignore="HardcodedText"/>
+            android:textColor="#00796B"
+            tools:ignore="HardcodedText,VisualLintButtonSize" />
     </LinearLayout>
 
     <View
