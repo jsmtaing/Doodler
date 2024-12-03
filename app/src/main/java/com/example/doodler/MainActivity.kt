@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
                             doodleViewState.value = doodleView
 
                             // Initialize DoodleView properties
-                            doodleView.setStrokeWidth(brushSize.toInt())
+                            doodleView.setStrokeWidth(brushSize)
                             doodleView.setStrokeAlpha(brushOpacity)
                             doodleView.setStrokeColor(brushColor)
 
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
                     // Update DoodleView properties on state changes
                     LaunchedEffect(brushSize, brushOpacity, brushColor) {
                         doodleViewState.value?.apply {
-                            setStrokeWidth(brushSize.toInt())
+                            setStrokeWidth(brushSize)
                             setStrokeAlpha(brushOpacity)
                             setStrokeColor(brushColor)
                         }
@@ -148,7 +148,7 @@ class MainActivity : ComponentActivity() {
                 SeekBarWithValue(
                     currentValue = currentOpacity,
                     range = 0f..255f,
-                    onValueChange = { opacity -> onOpacityChanged(opacity.toInt()) }
+                    onValueChange = { opacity -> onOpacityChanged(opacity) }
                 )
             },
             confirmButton = {
@@ -179,12 +179,12 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun SeekBarWithValue(currentValue: Int, range: ClosedFloatingPointRange<Float>, onValueChange: (Int) -> Unit) {
         Column(modifier = Modifier.fillMaxWidth()) { // Ensure the column takes full width
-            Text("Value: ${currentValue.toInt()}")
+            Text("Value: ${currentValue}")
             AndroidView(
                 factory = { context ->
                     SeekBar(context).apply {
                         max = range.endInclusive.toInt()
-                        progress = currentValue.toInt()
+                        progress = currentValue
                         layoutParams = LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
