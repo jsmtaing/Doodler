@@ -1,8 +1,6 @@
 package com.example.doodler
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
@@ -24,6 +22,10 @@ import com.example.doodler.ui.theme.DoodlerTheme
 
 class MainActivity : ComponentActivity() {
 
+    private var brushSize by mutableIntStateOf(10)
+    private var brushOpacity by mutableIntStateOf(255)
+    private var brushColor by mutableIntStateOf(0xFF000000.toInt())
+
     @SuppressLint("InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,56 +36,58 @@ class MainActivity : ComponentActivity() {
                 var showBrushSizeDialog by remember { mutableStateOf(false) }
                 var showBrushOpacityDialog by remember { mutableStateOf(false) }
                 var showColorPickerDialog by remember { mutableStateOf(false) }
-                var brushSize by remember { mutableFloatStateOf(10f) }
-                var brushOpacity by remember { mutableIntStateOf(255) }
-                var brushColor by remember { mutableIntStateOf(0xFF000000.toInt()) }
 
-                val doodleView: DoodleView? by remember { mutableStateOf<DoodleView?>(null) }
+                // DoodleView instance, retained using remember
+                val doodleViewState = remember { mutableStateOf<DoodleView?>(null) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     AndroidView(
                         factory = { context ->
-                            val layout =
-                                layoutInflater.inflate(R.layout.activity_main, null) as LinearLayout
+                            val layout = layoutInflater.inflate(R.layout.activity_main, null) as LinearLayout
 
-                            val doodleViewInstance = layout.findViewById<DoodleView>(R.id.doodleView2)
-                            //doodleView.value = doodleViewInstance
+                            val doodleView = layout.findViewById<DoodleView>(R.id.doodleView2)
+                            doodleViewState.value = doodleView
 
-                            // Find buttons and assign click listeners
-                            val btnSize = layout.findViewById<Button>(R.id.btn_size)
-                            val btnColor = layout.findViewById<Button>(R.id.btn_color)
-                            val btnOpacity = layout.findViewById<Button>(R.id.btn_opacity)
-                            val btnClear = layout.findViewById<Button>(R.id.btn_clear)
+                            // Initialize DoodleView properties
+                            doodleView.setStrokeWidth(brushSize.toInt())
+                            doodleView.setStrokeAlpha(brushOpacity)
+                            doodleView.setStrokeColor(brushColor)
 
-                            btnSize.setOnClickListener { showBrushSizeDialog = true }
-                            btnColor.setOnClickListener { showColorPickerDialog = true }
-                            btnOpacity.setOnClickListener { showBrushOpacityDialog = true }
-                            btnClear.setOnClickListener { doodleViewInstance.clearCanvas() }
-
-                            doodleViewInstance.setStrokeWidth(brushSize)
-                            doodleViewInstance.setStrokeAlpha(brushOpacity)
-                            doodleViewInstance.setStrokeColor(brushColor)
+                            // Setup button click listeners
+                            layout.findViewById<Button>(R.id.btn_size).setOnClickListener {
+                                showBrushSizeDialog = true
+                            }
+                            layout.findViewById<Button>(R.id.btn_color).setOnClickListener {
+                                showColorPickerDialog = true
+                            }
+                            layout.findViewById<Button>(R.id.btn_opacity).setOnClickListener {
+                                showBrushOpacityDialog = true
+                            }
+                            layout.findViewById<Button>(R.id.btn_clear).setOnClickListener {
+                                doodleView.clearCanvas()
+                            }
 
                             layout
                         },
                         modifier = Modifier.padding(innerPadding)
                     )
 
+                    // Update DoodleView properties on state changes
                     LaunchedEffect(brushSize, brushOpacity, brushColor) {
-                        doodleView?.apply {
-                            setStrokeWidth(brushSize)
+                        doodleViewState.value?.apply {
+                            setStrokeWidth(brushSize.toInt())
                             setStrokeAlpha(brushOpacity)
                             setStrokeColor(brushColor)
                         }
                     }
 
-                    // Display dialogs as needed
+                    // Dialogs for brush configuration
                     if (showBrushSizeDialog) {
                         BrushSizeDialog(
                             currentSize = brushSize,
-                            onSizeChanged = { newSize ->
-                                brushSize = newSize
-                                doodleView?.setStrokeWidth(newSize)
+                            onSizeChanged = {
+                                brushSize = it
+                                doodleViewState.value?.setStrokeWidth(it)
                             },
                             onDismiss = { showBrushSizeDialog = false }
                         )
@@ -92,9 +96,9 @@ class MainActivity : ComponentActivity() {
                     if (showBrushOpacityDialog) {
                         BrushOpacityDialog(
                             currentOpacity = brushOpacity,
-                            onOpacityChanged = { newOpacity ->
-                                brushOpacity = newOpacity
-                                doodleView?.setStrokeAlpha(newOpacity)
+                            onOpacityChanged = {
+                                brushOpacity = it
+                                doodleViewState.value?.setStrokeAlpha(it)
                             },
                             onDismiss = { showBrushOpacityDialog = false }
                         )
@@ -102,9 +106,9 @@ class MainActivity : ComponentActivity() {
 
                     if (showColorPickerDialog) {
                         ColorPickerDialog(
-                            onColorPicked = { newColor ->
-                                brushColor = newColor
-                                doodleView?.setStrokeColor(newColor)
+                            onColorPicked = {
+                                brushColor = it
+                                doodleViewState.value?.setStrokeColor(it)
                             },
                             onDismiss = { showColorPickerDialog = false }
                         )
@@ -116,7 +120,7 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun BrushSizeDialog(currentSize: Float, onSizeChanged: (Float) -> Unit, onDismiss: () -> Unit) {
+    fun BrushSizeDialog(currentSize: Int, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit) {
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text("Brush Size") },
@@ -142,7 +146,7 @@ class MainActivity : ComponentActivity() {
             title = { Text("Brush Opacity") },
             text = {
                 SeekBarWithValue(
-                    currentValue = currentOpacity.toFloat(),
+                    currentValue = currentOpacity,
                     range = 0f..255f,
                     onValueChange = { opacity -> onOpacityChanged(opacity.toInt()) }
                 )
@@ -173,7 +177,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun SeekBarWithValue(currentValue: Float, range: ClosedFloatingPointRange<Float>, onValueChange: (Float) -> Unit) {
+    fun SeekBarWithValue(currentValue: Int, range: ClosedFloatingPointRange<Float>, onValueChange: (Int) -> Unit) {
         Column(modifier = Modifier.fillMaxWidth()) { // Ensure the column takes full width
             Text("Value: ${currentValue.toInt()}")
             AndroidView(
@@ -187,7 +191,7 @@ class MainActivity : ComponentActivity() {
                         ) // Make SeekBar fill width
                         setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                                if (fromUser) onValueChange(progress.toFloat())
+                                if (fromUser) onValueChange(progress.toFloat().toInt())
                             }
 
                             override fun onStartTrackingTouch(seekBar: SeekBar?) {}

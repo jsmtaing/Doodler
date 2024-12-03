@@ -2,37 +2,76 @@ package com.example.doodler;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Path;
+import android.graphics.*;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.annotation.NonNull;
+import androidx.compose.ui.graphics.drawscope.Stroke;
 
 public class DoodleView extends View {
-    private final Paint paint;
-    private final Path path;
+    private Paint paint;
+    private Path currentPath;
+    private Bitmap bitmap;
+    private Canvas canvas;
+
+    //Strokes storage.
+    private final List<Stroke> strokes = new ArrayList<>();
+    private int currentColor = Color.BLACK;
+    private int currentStrokeWidth = 10;
+    private int currentAlpha = 255;
 
     public DoodleView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
+    }
+
+    private void init() {
         paint = new Paint();
         paint.setAntiAlias(true);
-        paint.setColor(0xFF000000);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(10f); // default stroke width (initial setup)
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        resetPaint();
 
-        path = new Path();
+        currentPath = new Path();
+    }
+
+    private void resetPaint() {
+        paint.setColor(currentColor);
+        paint.setStrokeWidth(currentStrokeWidth);
+        paint.setAlpha(currentAlpha);
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
-        // Draw the path with the current paint (stroke width, color, etc.)
-        canvas.drawPath(path, paint);
+        //Redraw previous (all) strokes.
+        for (Stroke stroke : strokes) {
+            paint.setColor(stroke.color);
+            paint.setStrokeWidth(stroke.strokeWidth);
+            paint.setAlpha(stroke.alpha);
+            canvas.drawPath(stroke.path, paint);
+        }
+
+        //Draw the current path
+        paint.setColor(currentColor);
+        paint.setStrokeWidth(currentStrokeWidth);
+        paint.setAlpha(currentAlpha);
+        canvas.drawPath(currentPath, paint);
     }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(bitmap);
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
@@ -40,46 +79,59 @@ public class DoodleView extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                path.moveTo(x, y);
+                currentPath = new Path();
+                currentPath.moveTo(x, y);
                 break;
             case MotionEvent.ACTION_MOVE:
-                path.lineTo(x, y);
+                currentPath.lineTo(x, y);
                 break;
             case MotionEvent.ACTION_UP:
+                strokes.add(new Stroke(new Path(currentPath), currentColor, currentStrokeWidth, currentAlpha));
+                currentPath.reset();
                 break;
         }
-        invalidate(); // Redraw the view with the updated path
+        invalidate();
         return true;
     }
 
     // Set the stroke width
-    public void setStrokeWidth(float width) {
-        paint.setStrokeWidth(width);  // Set the new stroke width
-        invalidate(); // Ensure the view is redrawn with the new stroke width
+    public void setStrokeWidth(int width) {
+        currentStrokeWidth = width;
+        resetPaint();
+        invalidate();
     }
-
-    public float getStrokeWidth() {
-        return paint.getStrokeWidth(); // Get the current stroke width
-    }
-
     // Set the stroke color
     public void setStrokeColor(int color) {
-        paint.setColor(color);
+        currentColor = color;
+        resetPaint();
         invalidate();
     }
-
     // Set the stroke alpha (opacity)
     public void setStrokeAlpha(int alpha) {
-        paint.setAlpha(alpha);
+        currentAlpha = alpha;
+        resetPaint();
         invalidate();
     }
-
-    public int getStrokeAlpha() {
-        return paint.getAlpha();
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+    public void clearCanvas() {
+        strokes.clear(); // Reset the path to clear the canvas
+        invalidate(); // Redraw after clearing
     }
 
-    public void clearCanvas() {
-        path.reset(); // Reset the path to clear the canvas
-        invalidate(); // Redraw after clearing
+    //Inner class to represent a single stroke.
+    private static class Stroke {
+        Path path;
+        int color;
+        int strokeWidth;
+        int alpha;
+
+        Stroke(Path path, int color, int strokeWidth, int alpha) {
+            this.path = path;
+            this.color = color;
+            this.strokeWidth = strokeWidth;
+            this.alpha = alpha;
+        }
     }
 }
