@@ -53,4 +53,9 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?android:attr/listDivider" />
+
+    <com.example.doodler.DoodleView
+        android:id="@+id/doodleView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>
