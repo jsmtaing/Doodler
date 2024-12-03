@@ -1,6 +1,7 @@
 package com.example.doodler
 
 import android.annotation.SuppressLint
+import android.graphics.Color.HSVToColor
 import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
@@ -8,17 +9,31 @@ import android.widget.SeekBar
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.doodler.ui.theme.DoodlerTheme
-
-
 
 class MainActivity : ComponentActivity() {
 
@@ -42,7 +57,7 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     AndroidView(
-                        factory = { context ->
+                        factory = { _ ->
                             val layout = layoutInflater.inflate(R.layout.activity_main, null) as LinearLayout
 
                             val doodleView = layout.findViewById<DoodleView>(R.id.doodleView2)
@@ -161,15 +176,51 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun ColorPickerDialog(onColorPicked: (Int) -> Unit, onDismiss: () -> Unit) {
+        var hue by remember { mutableFloatStateOf(0f) }
+        var saturation by remember { mutableFloatStateOf(1f) }
+        var brightness by remember { mutableFloatStateOf(1f) }
+        val color = HSVToColor(floatArrayOf(hue, saturation, brightness))
+
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text("Pick a Color") },
             text = {
-                // Replace with a proper color picker composable
-                Text("Color Picker goes here")
+                Column(modifier = Modifier.padding(16.dp)) {
+                    //Hue
+                    Slider(
+                        value = hue,
+                        onValueChange = { hue = it },
+                        valueRange = 0f..360f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    //Saturation
+                    Slider(
+                        value = saturation,
+                        onValueChange = { saturation = it },
+                        valueRange = 0f..1f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    //Brightness
+                    Slider(
+                        value = brightness,
+                        onValueChange = { brightness = it },
+                        valueRange = 0f..1f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    //Preview
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .background(Color(color))
+                            .padding(8.dp)
+                    )
+                }
             },
             confirmButton = {
-                TextButton(onClick = { onColorPicked(0xFF000000.toInt()); onDismiss() }) {
+                TextButton(onClick = { onColorPicked(color); onDismiss() }) {
                     Text("Confirm")
                 }
             }
@@ -179,7 +230,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun SeekBarWithValue(currentValue: Int, range: ClosedFloatingPointRange<Float>, onValueChange: (Int) -> Unit) {
         Column(modifier = Modifier.fillMaxWidth()) { // Ensure the column takes full width
-            Text("Value: ${currentValue}")
+            Text("Value: $currentValue")
             AndroidView(
                 factory = { context ->
                     SeekBar(context).apply {
