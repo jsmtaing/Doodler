@@ -18,9 +18,10 @@ public class DoodleView extends View {
     private Path currentPath;
     private Bitmap bitmap;
     private Canvas canvas;
-
     //Strokes storage.
     private final List<Stroke> strokes = new ArrayList<>();
+    //Undone strokes.
+    private final List<Stroke> undoneStrokes = new ArrayList<>();
     private int currentColor = Color.BLACK;
     private int currentStrokeWidth = 10;
     private int currentAlpha = 255;
@@ -81,6 +82,7 @@ public class DoodleView extends View {
             case MotionEvent.ACTION_DOWN:
                 currentPath = new Path();
                 currentPath.moveTo(x, y);
+                undoneStrokes.clear();
                 break;
             case MotionEvent.ACTION_MOVE:
                 currentPath.lineTo(x, y);
@@ -118,6 +120,19 @@ public class DoodleView extends View {
     public void clearCanvas() {
         strokes.clear(); // Reset the path to clear the canvas
         invalidate(); // Redraw after clearing
+    }
+
+    public void undo() {
+        if (!strokes.isEmpty()) {
+            undoneStrokes.add(strokes.remove(strokes.size() - 1));
+            invalidate();
+        }
+    }
+    public void redo() {
+        if (!undoneStrokes.isEmpty()) {
+            strokes.add(undoneStrokes.remove(undoneStrokes.size() - 1));
+            invalidate();
+        }
     }
 
     //Inner class to represent a single stroke.

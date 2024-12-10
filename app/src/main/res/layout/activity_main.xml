@@ -5,52 +5,81 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        style="?android:attr/buttonBarStyle"
+    <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/btn_size"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Size"
-            android:textColor="#00796B"
-            tools:ignore="HardcodedText" />
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/btn_color"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Color"
-            android:textColor="#00796B"
-            tools:ignore="HardcodedText,VisualLintButtonSize" />
+            <Button
+                android:id="@+id/btn_size"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Size"
+                android:textColor="#00796B"
+                tools:ignore="HardcodedText" />
 
-        <Button
-            android:id="@+id/btn_opacity"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Opacity"
-            android:textColor="#00796B"
-            tools:ignore="HardcodedText" />
+            <Button
+                android:id="@+id/btn_color"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Color"
+                android:textColor="#00796B"
+                tools:ignore="HardcodedText,VisualLintButtonSize" />
 
-        <Button
-            android:id="@+id/btn_clear"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Clear"
-            android:textColor="#00796B"
-            tools:ignore="HardcodedText,VisualLintButtonSize" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/btn_opacity"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Opacity"
+                android:textColor="#00796B"
+                tools:ignore="HardcodedText" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <Button
+                android:id="@+id/btn_undo"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Undo"
+                android:textColor="#00796B"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/btn_redo"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Redo"
+                android:textColor="#00796B"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/btn_clear"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Clear"
+                android:textColor="#00796B"
+                tools:ignore="HardcodedText,VisualLintButtonSize" />
+        </TableRow>
+
+    </TableLayout>
 
     <View
         android:id="@+id/divider"
@@ -62,4 +91,5 @@
         android:id="@+id/doodleView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
 </LinearLayout>

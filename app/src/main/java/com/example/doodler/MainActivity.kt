@@ -81,6 +81,12 @@ class MainActivity : ComponentActivity() {
                             layout.findViewById<Button>(R.id.btn_clear).setOnClickListener {
                                 doodleView.clearCanvas()
                             }
+                            layout.findViewById<Button>(R.id.btn_undo).setOnClickListener {
+                                doodleView.undo()
+                            }
+                            layout.findViewById<Button>(R.id.btn_redo).setOnClickListener {
+                                doodleView.redo()
+                            }
 
                             layout
                         },
